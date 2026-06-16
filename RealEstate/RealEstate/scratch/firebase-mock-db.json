@@ -1,0 +1,134 @@
+{
+  "users": [
+    {
+      "name": "Administrator",
+      "email": "md@athubiholding.com",
+      "password": "$2b$10$.Ay/QGVBeWhTwuQslblfduSvVuDGVrxiH60rO0MrkLQoij6uLVgXC",
+      "role": "ADMIN",
+      "image": null,
+      "id": "f680492d-1bc0-4aa2-a166-380b5bbb9b8c",
+      "createdAt": "2026-06-15T16:57:00.129Z",
+      "updatedAt": "2026-06-16T06:19:17.078Z",
+      "lastActiveAt": "2026-06-16T06:19:17.078Z"
+    },
+    {
+      "name": "Ketanjit",
+      "email": "hainsnknko@nion.com",
+      "password": "$2b$10$b9BNZHWQV8YumGZR/tm80eMzN..IdWtU/ZUeiU/MAX7g8ZM8ZPFqW",
+      "role": "BUYER",
+      "id": "272bab96-80ee-4c95-ae0d-2cc2cafe4a0c",
+      "createdAt": "2026-06-15T17:02:18.575Z",
+      "updatedAt": "2026-06-15T19:10:15.946Z",
+      "status": "BANNED"
+    },
+    {
+      "name": "Ketanjit Ningthoujam",
+      "email": "mvpzvuan@gmail.com",
+      "password": "$2b$10$D6sf5jjfV2.LE4.pHZ2S8.us/YIDWxCEliprMaYpAf8ghju6lXEPC",
+      "role": "BUYER",
+      "dateOfBirth": "2006-03-30",
+      "phone": "ketanjitningthoujam43@gmail.com",
+      "phoneVerified": true,
+      "image": "https://api.dicebear.com/7.x/initials/svg?seed=Ketanjit%20Ningthoujam",
+      "id": "b6ae1108-6898-4531-9e68-ce71d5412053",
+      "createdAt": "2026-06-15T18:28:29.879Z",
+      "updatedAt": "2026-06-15T19:10:41.364Z",
+      "status": "FLAGGED"
+    },
+    {
+      "name": "Pravin Heisnam",
+      "email": "pravinheisnam@gmail.com",
+      "password": "$2b$10$3nG2Qbksjd8n5DE0ETovXOLNvmjpri3C9Z6.C7PCWD0EAg0qzR1GC",
+      "role": "BUYER",
+      "dateOfBirth": "2004-03-10",
+      "phone": "9362584929",
+      "phoneVerified": true,
+      "image": "https://api.dicebear.com/7.x/initials/svg?seed=Pravin%20Heisnam",
+      "id": "8f11db54-0384-4066-ad7f-cbbccf8e0cf3",
+      "createdAt": "2026-06-15T18:31:48.089Z",
+      "updatedAt": "2026-06-15T19:53:14.108Z",
+      "lastActiveAt": "2026-06-15T19:53:14.108Z"
+    }
+  ],
+  "properties": [],
+  "propertyImages": [
+    {
+      "propertyId": "b7f36af9-a6e5-423b-be97-5ac6ecac1c18",
+      "url": "/uploads/1781587628871-mcjvyja70-Lh5ArB4uSLpPkcZwRX7O.jpg",
+      "order": 0,
+      "hash": "24ae53af83e99b3a52542672d098b29bd4aef15ec2e4009aff302ea856195425",
+      "id": "bba29666-2e16-4bd2-a0b7-777204a2f52a",
+      "createdAt": "2026-06-16T05:33:42.220Z",
+      "updatedAt": "2026-06-16T05:33:42.220Z"
+    }
+  ],
+  "propertyPolygons": [
+    {
+      "propertyId": "b7f36af9-a6e5-423b-be97-5ac6ecac1c18",
+      "coordinates": [
+        [
+          [
+            93.91555309295656,
+            24.7938534125296
+          ],
+          [
+            93.9161378145218,
+            24.79372127402386
+          ],
+          [
+            93.91618072986604,
+            24.793798012301128
+          ],
+          [
+            93.91559869050981,
+            24.793919818992993
+          ],
+          [
+            93.91557857394218,
+            24.793861351795844
+          ],
+          [
+            93.91555309295656,
+            24.7938534125296
+          ]
+        ]
+      ],
+      "id": "fe27f9bf-ee94-49a6-be20-e5c0e459439d",
+      "createdAt": "2026-06-16T05:33:42.310Z",
+      "updatedAt": "2026-06-16T05:33:42.310Z"
+    }
+  ],
+  "messages": [],
+  "sellerVerifications": [],
+  "reports": [],
+  "auditLogs": [
+    {
+      "adminId": "f680492d-1bc0-4aa2-a166-380b5bbb9b8c",
+      "action": "LISTING_DELETED",
+      "targetType": "LISTING",
+      "targetId": "b7f36af9-a6e5-423b-be97-5ac6ecac1c18",
+      "details": "Permanently deleted spam listing: \"Beautiful land plot near the highway with excellent road access\"",
+      "id": "7c418aff-68a1-4ef6-9ebd-1b9a25da9c2a",
+      "createdAt": "2026-06-16T06:19:41.259Z",
+      "updatedAt": "2026-06-16T06:19:41.259Z"
+    }
+  ],
+  "otps": [
+    {
+      "phone": "9233903377",
+      "code": "621725",
+      "expiresAt": "2026-06-15T17:37:32.003Z",
+      "id": "87a016e6-4232-4a1a-9b36-4482580f26f7",
+      "createdAt": "2026-06-15T17:32:32.005Z",
+      "updatedAt": "2026-06-15T17:32:32.005Z"
+    },
+    {
+      "email": "ketanjitningthoujam43@gmail.com",
+      "code": "185573",
+      "expiresAt": "2026-06-15T17:54:37.670Z",
+      "id": "80dca655-546e-4db6-9963-09f8aad2f9e4",
+      "createdAt": "2026-06-15T17:49:37.673Z",
+      "updatedAt": "2026-06-15T17:49:37.673Z"
+    }
+  ]
+}

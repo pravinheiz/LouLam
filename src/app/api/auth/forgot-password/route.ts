@@ -10,7 +10,7 @@ const ForgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
-export const POST = withErrorHandler(async (req: NextRequest) => {
+export const POST = withErrorHandler(async (req: NextRequest | Request) => {
   const body = await req.json();
   const { email } = ForgotPasswordSchema.parse(body);
 

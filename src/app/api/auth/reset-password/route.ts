@@ -11,7 +11,7 @@ const ResetPasswordSchema = z.object({
   newPassword: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export const POST = withErrorHandler(async (req: NextRequest) => {
+export const POST = withErrorHandler(async (req: NextRequest | Request) => {
   const body = await req.json();
   const { token, newPassword } = ResetPasswordSchema.parse(body);
 

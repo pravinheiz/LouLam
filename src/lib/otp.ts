@@ -22,7 +22,7 @@ export async function sendOtpSms(
       const bodyParams = new URLSearchParams({
         To: phone,
         From: twilioPhone,
-        Body: `Your Heisnam Estate verification code is: ${code}. It expires in 5 minutes.`,
+        Body: `Your LouLam verification code is: ${code}. It expires in 5 minutes.`,
       });
 
       const response = await fetch(url, {

@@ -139,7 +139,7 @@ export default function BoundaryDesignerPage() {
           </div>
           <div>
             <h1 className="text-sm font-black tracking-tight text-white uppercase leading-none">
-              Heisnam Estate
+              LouLam
             </h1>
             <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">
               Spatial Boundary Designer

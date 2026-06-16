@@ -56,7 +56,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   let uploadError: any = null;
 
   // 1. Try Firebase Storage with multiple bucket naming fallback combinations
-  const projectId = process.env.FIREBASE_PROJECT_ID || "heisnamestate";
+  const projectId = process.env.FIREBASE_PROJECT_ID || "loulam-1fec9";
   const bucketsToTry = [
     process.env.FIREBASE_STORAGE_BUCKET,
     `${projectId}.appspot.com`,

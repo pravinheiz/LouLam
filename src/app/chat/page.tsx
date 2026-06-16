@@ -447,7 +447,7 @@ function ChatWorkspace() {
               <Compass className="h-5 w-5" />
             </div>
             <span className="font-extrabold text-sm tracking-wide bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent hidden sm:inline">
-              HEISNAM ESTATE
+              LouLam
             </span>
           </div>
         </div>

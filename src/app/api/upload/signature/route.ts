@@ -23,7 +23,7 @@ export const GET = withErrorHandler(async () => {
   }
 
   const timestamp = Math.round(new Date().getTime() / 1000);
-  const folder = "heisnam_estate";
+  const folder = "loulam";
 
   // Signed parameters
   const paramsToSign = {

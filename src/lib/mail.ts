@@ -6,7 +6,7 @@ export async function sendEmailOtp(email: string, code: string): Promise<void> {
   const port = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASSWORD;
-  const from = process.env.SMTP_FROM || `"Heisnam Estate" <${user}>`;
+  const from = process.env.SMTP_FROM || `"LouLam" <${user}>`;
 
   if (!host || !user || !pass) {
     console.error("❌ SMTP Credentials missing in env variables.");
@@ -28,11 +28,11 @@ export async function sendEmailOtp(email: string, code: string): Promise<void> {
   const mailOptions = {
     from,
     to: email,
-    subject: "Heisnam Estate - Email Verification Code",
+    subject: "LouLam - Email Verification Code",
     text: `Your email verification code is: ${code}. This code is valid for 5 minutes.`,
     html: `
       <div style="font-family: sans-serif; padding: 20px; background-color: #0f172a; color: #ffffff; border-radius: 10px; max-width: 500px; margin: auto;">
-        <h2 style="color: #6366f1; text-align: center;">Heisnam Estate</h2>
+        <h2 style="color: #6366f1; text-align: center;">LouLam</h2>
         <p>Hello,</p>
         <p>Thank you for registering. Please use the following 6-digit verification code to verify your email address:</p>
         <div style="font-size: 28px; font-weight: bold; text-align: center; letter-spacing: 5px; margin: 30px 0; color: #38bdf8; background-color: #1e293b; padding: 15px; border-radius: 8px;">

@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { db } from '@/lib/db'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://heisnam-estate.vercel.app'
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://loulam.vercel.app'
 
   // Fetch all active listings for the sitemap
   const listings = await db.property.findMany({

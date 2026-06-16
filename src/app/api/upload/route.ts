@@ -6,6 +6,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import fs from "fs";
 import path from "path";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -91,27 +92,17 @@ export const POST = withErrorHandler(async (request: Request) => {
     console.error("[Firebase App Init] Failed:", appInitErr);
   }
 
-  // 2. If Firebase Storage fails or is not enabled, use local filesystem fallback
+  // 2. If Firebase Storage fails or is not enabled, use Cloudinary fallback
   if (!downloadUrl) {
-    console.warn("[Upload Fallback] Firebase Storage failed. Falling back to local filesystem...");
+    console.warn("[Upload Fallback] Firebase Storage failed. Falling back to Cloudinary...");
     try {
-      const uploadsDir = path.join(process.cwd(), "public", "uploads");
-      
-      // Ensure the directory exists
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-      }
-
-      const localFileName = `${uniqueId}-${file.name}`;
-      const localFilePath = path.join(uploadsDir, localFileName);
-
-      fs.writeFileSync(localFilePath, Buffer.from(buffer));
-      downloadUrl = `/uploads/${localFileName}`;
-      console.log(`[Upload Fallback] Success! Saved locally at: ${downloadUrl}`);
-    } catch (localErr: any) {
-      console.error("[Upload Fallback] Local filesystem save failed:", localErr);
+      const result = await uploadToCloudinary(Buffer.from(buffer), folder);
+      downloadUrl = result.secure_url;
+      console.log(`[Upload Fallback] Success! Saved at Cloudinary: ${downloadUrl}`);
+    } catch (cloudErr: any) {
+      console.error("[Upload Fallback] Cloudinary save failed:", cloudErr);
       throw new ValidationError(
-        `Upload failed. Firebase Storage Error: ${uploadError?.message || "unknown"}. Local Fallback Error: ${localErr?.message || "unknown"}`
+        `Upload failed. Firebase Storage Error: ${uploadError?.message || "unknown"}. Cloudinary Fallback Error: ${cloudErr?.message || "unknown"}`
       );
     }
   }

@@ -1,6 +1,8 @@
 import { withErrorHandler } from "@/lib/with-error-handler";
 import { ApiResponse } from "@/lib/api-response";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/auth/otp/config
  * Exposes the public Firebase client configuration to the frontend if defined in .env.

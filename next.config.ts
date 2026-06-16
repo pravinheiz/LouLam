@@ -28,9 +28,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['firebase-admin', 'jwks-rsa', 'jose'],
+  serverExternalPackages: ['firebase-admin'],
   experimental: {
-    serverComponentsExternalPackages: ['firebase-admin', 'jwks-rsa', 'jose']
   },
   allowedDevOrigins: ['regional-airport-side-victorian.trycloudflare.com'],
   images: {

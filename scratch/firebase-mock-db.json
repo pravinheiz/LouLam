@@ -38,8 +38,8 @@
     {
       "name": "Pravin Heisnam",
       "email": "pravinheisnam@gmail.com",
-      "password": "$2b$10$3nG2Qbksjd8n5DE0ETovXOLNvmjpri3C9Z6.C7PCWD0EAg0qzR1GC",
-      "role": "BUYER",
+      "password": "$2b$10$.Ay/QGVBeWhTwuQslblfduSvVuDGVrxiH60rO0MrkLQoij6uLVgXC",
+      "role": "ADMIN",
       "dateOfBirth": "2004-03-10",
       "phone": "9362584929",
       "phoneVerified": true,

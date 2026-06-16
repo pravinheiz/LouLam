@@ -3,8 +3,6 @@ import { z } from "zod";
 import * as bcrypt from "bcryptjs";
 import { ConflictError, ValidationError } from "@/lib/api-errors";
 import { Role } from "@/types/db";
-import { getAuth } from "firebase-admin/auth";
-
 export const RegisterSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
@@ -49,6 +47,7 @@ export class AuthService {
 
     try {
       console.log(`🔐 Verifying Firebase ID Token...`);
+      const { getAuth } = await import("firebase-admin/auth");
       const decodedToken = await getAuth().verifyIdToken(validated.firebaseToken);
       const tokenEmail = decodedToken.email;
       const isEmailVerified = decodedToken.email_verified;

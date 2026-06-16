@@ -28,6 +28,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['firebase-admin'],
   allowedDevOrigins: ['regional-airport-side-victorian.trycloudflare.com'],
   images: {
     remotePatterns: [

@@ -59,7 +59,10 @@ export async function sendPropertyStatusReminder(
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASSWORD;
   const from = process.env.SMTP_FROM || `"LouLam Marketplace" <${user}>`;
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  
+  const baseUrl = process.env.NEXTAUTH_URL || 
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"));
 
   if (!host || !user || !pass) {
     console.error("❌ SMTP Credentials missing in env variables.");
@@ -111,7 +114,10 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASSWORD;
   const from = process.env.SMTP_FROM || `"LouLam" <${user}>`;
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  
+  const baseUrl = process.env.NEXTAUTH_URL || 
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"));
 
   if (!host || !user || !pass) {
     console.error("❌ SMTP Credentials missing in env variables.");

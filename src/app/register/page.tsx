@@ -62,7 +62,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const response = await fetch("/api/auth/otp/config");
+        const response = await fetch("/api/auth/otp/config", { cache: "no-store" });
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data.firebaseEnabled) {

@@ -1489,7 +1489,10 @@ export default function MarketplaceDashboard() {
                 listings={filteredListings}
                 center={mapCenter}
                 onBoundsChange={handleBoundsChange}
-                onMarkerClick={(listing) => handleSelectListing(listing)}
+                onMarkerClick={(pin) => {
+                  const fullListing = filteredListings.find(l => l.id === pin.id);
+                  if (fullListing) handleSelectListing(fullListing);
+                }}
               />
             </div>
             

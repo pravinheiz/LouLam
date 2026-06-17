@@ -50,6 +50,7 @@ interface MapProps {
     north: number;
     east: number;
   }) => void;
+  onMarkerClick?: (listing: ListingPin) => void;
 }
 
 // Sub-component to monitor map center/zoom and update container
@@ -126,6 +127,7 @@ export default function LeafletMap({
   center,
   zoom = 13,
   onBoundsChange,
+  onMarkerClick,
 }: MapProps) {
   const [mapType, setMapType] = useState<"satellite" | "terrain" | "hybrid" | "roadmap">("hybrid");
 
@@ -141,7 +143,7 @@ export default function LeafletMap({
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 z-10 relative">
       {/* Map Layer Switcher Floating Control */}
-      <div className="absolute top-4 right-4 z-[400] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-2.5 rounded-2xl shadow-xl flex flex-col gap-1.5 min-w-[110px]">
+      <div className="absolute top-24 sm:top-4 right-4 z-[1000] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-2.5 rounded-2xl shadow-xl flex flex-col gap-2 min-w-[110px]">
         <div className="flex items-center gap-1.5 px-1 pb-1.5 border-b border-slate-100 dark:border-slate-800">
           <Layers className="h-3.5 w-3.5 text-indigo-500" />
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Map Style</span>
@@ -151,10 +153,10 @@ export default function LeafletMap({
             key={type}
             type="button"
             onClick={() => setMapType(type)}
-            className={`w-full text-left px-2.5 py-0.5 text-[10px] font-bold rounded-lg uppercase tracking-wide transition-all cursor-pointer ${
+            className={`w-full text-left px-3 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wide transition-all cursor-pointer border ${
               mapType === type
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
             }`}
           >
             {type}
@@ -165,6 +167,7 @@ export default function LeafletMap({
       <MapContainer
         center={center}
         zoom={zoom}
+        zoomControl={false}
         className="w-full h-full"
         style={{ minHeight: "350px" }}
       >
@@ -206,6 +209,13 @@ export default function LeafletMap({
               )}
               <Marker
                 position={[listing.latitude, listing.longitude]}
+                eventHandlers={{
+                  click: () => {
+                    if (onMarkerClick) {
+                      onMarkerClick(listing);
+                    }
+                  },
+                }}
               >
                 <Popup className="custom-popup">
                   <div className="p-1 font-sans">

@@ -32,7 +32,8 @@ import {
   ChevronRight,
   MessageSquare,
   Shield,
-  AlertTriangle
+  AlertTriangle,
+  Menu
 } from "lucide-react";
 
 interface Listing {
@@ -62,8 +63,16 @@ export default function MarketplaceDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Mobile layout state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileListView, setIsMobileListView] = useState(false);
+  const [isMobileFiltersExpanded, setIsMobileFiltersExpanded] = useState(false);
+
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState("");
+  const [autocompleteResults, setAutocompleteResults] = useState<{ display_name: string; lat: string; lon: string }[]>([]);
+  const [isSearchingLocation, setIsSearchingLocation] = useState(false);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [propertyType, setPropertyType] = useState<string>("ALL");
   const [maxPrice, setMaxPrice] = useState<number>(50000000);
   const minPrice = 0;
@@ -588,29 +597,76 @@ export default function MarketplaceDashboard() {
   };
 
   // Get user location using HTML5 Geolocation API
-  const handleLocateUser = useCallback(() => {
+    const handleLocateUser = useCallback(() => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser");
       return;
     }
-
+    
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
-        setMapCenter([latitude, longitude]);
-        setRadialSearchEnabled(true);
-        setMapFilterEnabled(false);
+        setMapCenter([position.coords.latitude, position.coords.longitude]);
         setLocating(false);
+        setIsMobileFiltersExpanded(false);
       },
-      (error) => {
-        console.error("Error getting location:", error);
-        alert("Unable to retrieve location. Please check browser permissions.");
+      (err) => {
+        console.error(err);
+        alert("Unable to retrieve your location");
         setLocating(false);
-      },
-      { enableHighAccuracy: true }
+      }
     );
   }, []);
+
+  // Geocode search query using Nominatim API to recenter map
+  const handleGeocodeSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        setMapCenter([parseFloat(lat), parseFloat(lon)]);
+        setIsMobileFiltersExpanded(false);
+      } else {
+        alert("Location not found. Please try a different search term.");
+      }
+    } catch (err) {
+      console.error("Geocoding failed", err);
+    }
+  };
+
+  // Fetch autocomplete suggestions with debounce
+  useEffect(() => {
+    if (!searchQuery.trim() || !showAutocomplete) {
+      setAutocompleteResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingLocation(true);
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&addressdetails=1&limit=5`);
+        const data = await response.json();
+        setAutocompleteResults(data || []);
+      } catch (err) {
+        console.error("Autocomplete fetch failed", err);
+      } finally {
+        setIsSearchingLocation(false);
+      }
+    }, 400); // 400ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, showAutocomplete]);
+
+  const handleSelectAutocomplete = (result: { display_name: string; lat: string; lon: string }) => {
+    setSearchQuery(result.display_name);
+    setMapCenter([parseFloat(result.lat), parseFloat(result.lon)]);
+    setShowAutocomplete(false);
+    setIsMobileFiltersExpanded(false);
+    setAutocompleteResults([]);
+  };
 
   // Try to locate user on initial mount
   useEffect(() => {
@@ -836,9 +892,9 @@ export default function MarketplaceDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-950 dark:text-slate-50 font-sans">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-black text-slate-950 dark:text-slate-50 font-sans selection:bg-indigo-500/30">
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 transition-colors">
+      <header className="hidden sm:block sticky top-0 z-50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border-b border-white/60 dark:border-slate-800/50 transition-colors shadow-sm shadow-slate-900/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -848,17 +904,17 @@ export default function MarketplaceDashboard() {
           <div className="flex items-center gap-4">
             {session ? (
               <>
-                <button 
-                  onClick={() => {
-                    setCreateLatitude(mapCenter[0].toFixed(6));
-                    setCreateLongitude(mapCenter[1].toFixed(6));
-                    setIsCreateModalOpen(true);
-                  }}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-                >
-                  <Building className="h-4 w-4 text-indigo-500" />
-                  List Property
-                </button>
+                  <button 
+                    onClick={() => {
+                      setCreateLatitude(mapCenter[0].toFixed(6));
+                      setCreateLongitude(mapCenter[1].toFixed(6));
+                      setIsCreateModalOpen(true);
+                    }}
+                    className="hidden sm:flex items-center gap-2 px-4 py-2 border border-slate-200/50 dark:border-slate-800 bg-white/50 backdrop-blur-md hover:bg-slate-100/80 dark:hover:bg-slate-800 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-sm shadow-slate-900/5"
+                  >
+                    <Building className="h-4 w-4 text-indigo-500" />
+                    List Property
+                  </button>
 
                 <Link
                   href="/chat"
@@ -902,7 +958,7 @@ export default function MarketplaceDashboard() {
               <>
                 <Link
                   href="/login"
-                  className="flex items-center gap-2 px-3.5 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-slate-700 dark:text-slate-200"
+                  className="hidden sm:flex items-center gap-2 px-3.5 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-slate-700 dark:text-slate-200"
                 >
                   <LogIn className="h-4 w-4 text-slate-400" />
                   <span>Log In</span>
@@ -910,7 +966,7 @@ export default function MarketplaceDashboard() {
 
                 <Link
                   href="/register"
-                  className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-tr from-indigo-600 to-violet-600 text-white rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20"
+                  className="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-gradient-to-tr from-indigo-600 to-violet-600 text-white rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20"
                 >
                   <UserPlus className="h-4 w-4" />
                   <span>Register</span>
@@ -921,10 +977,92 @@ export default function MarketplaceDashboard() {
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Mobile Side Drawer */}
+      {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-[100] flex sm:hidden">
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            {/* Sidebar */}
+            <div className="relative w-4/5 max-w-sm bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-500 ease-out ml-auto border-l border-white/40 dark:border-slate-700/50">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                <span className="font-bold text-lg">Menu</span>
+                <button 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+                {session ? (
+                  <>
+                    <div className="mb-4">
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                        {session.user.name || session.user.email}
+                      </p>
+                      <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="text-xs text-indigo-600 dark:text-indigo-400">
+                        View Profile
+                      </Link>
+                    </div>
+                    
+                    <button 
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        setCreateLatitude(mapCenter[0].toFixed(6));
+                        setCreateLongitude(mapCenter[1].toFixed(6));
+                        setIsCreateModalOpen(true);
+                      }}
+                      className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl"
+                    >
+                      <Building className="h-5 w-5 text-indigo-500" />
+                      <span className="font-medium">List Property</span>
+                    </button>
+
+                    <Link href="/chat" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                      <MessageSquare className="h-5 w-5 text-indigo-500" />
+                      <span className="font-medium">Inbox</span>
+                    </Link>
+
+                    {session.user?.role === "ADMIN" && (
+                      <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                        <Shield className="h-5 w-5 text-emerald-500" />
+                        <span className="font-medium">Admin Panel</span>
+                      </Link>
+                    )}
+
+                    <div className="mt-auto pt-4">
+                      <button
+                        onClick={() => signOut({ callbackUrl: "/" })}
+                        className="w-full flex items-center justify-center gap-2 p-3 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-xl font-semibold"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                      <LogIn className="h-5 w-5 text-slate-500" />
+                      <span className="font-medium">Log In</span>
+                    </Link>
+                    <Link href="/register" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                      <UserPlus className="h-5 w-5" />
+                      <span className="font-medium">Register</span>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+      <main className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-0 sm:py-6 h-[100dvh] sm:h-[calc(100vh-64px)] flex flex-col relative z-0 overflow-hidden sm:overflow-visible">
         {expiredListings.length > 0 && (
-          <div className="bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 rounded-3xl p-6 mb-6">
+          <div className="bg-amber-500/10 dark:bg-amber-500/5 backdrop-blur-xl border border-amber-500/20 rounded-[2rem] p-6 mb-6 mx-4 sm:mx-0 mt-4 sm:mt-0 relative z-20 shadow-xl shadow-amber-900/5">
             <div className="flex items-start gap-4">
               <div className="p-3 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-2xl shrink-0">
                 <AlertTriangle className="h-6 w-6" />
@@ -988,50 +1126,121 @@ export default function MarketplaceDashboard() {
           </div>
         )}
         {error && (
-          <div className="bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-xs font-semibold border border-rose-100 dark:border-rose-900/50 mb-4">
+          <div className="bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-xs font-semibold border border-rose-100 dark:border-rose-900/50 mb-4 mx-4 sm:mx-0 mt-4 sm:mt-0 relative z-20">
             ⚠️ Database connection failed. Running in mock simulation mode. (Error details: {error})
           </div>
         )}
         {/* Search & Filter Control Bar */}
-        <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-6 transition-colors">
-          <div className="flex flex-col gap-6">
+        <section className={`absolute top-4 left-4 right-4 z-10 sm:relative sm:top-0 sm:left-0 sm:right-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 dark:border-slate-700/50 shadow-2xl shadow-slate-900/10 mb-6 transition-all duration-500 ease-in-out ${isMobileListView ? 'hidden sm:block' : 'block'} p-4 sm:p-5 ${isMobileFiltersExpanded ? 'max-h-[85vh] overflow-y-auto' : 'max-h-[88px] overflow-hidden'}`}>
+          <div className="flex flex-col gap-4 sm:gap-6">
             {/* Row 1: Search & Type */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
               {/* Search Bar */}
-              <div className="relative md:col-span-5">
-                <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search by city, neighborhood, zip code..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder-slate-400"
-                />
+              <div className="relative md:col-span-5 flex items-center gap-2">
+                <div className="relative flex-1 flex items-center">
+                  <button 
+                    onClick={() => setIsMobileMenuOpen(true)}
+                    className="sm:hidden absolute left-1 p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors z-10 cursor-pointer active:scale-95"
+                  >
+                    <Menu className="h-5 w-5" />
+                  </button>
+                  <button 
+                    onClick={handleGeocodeSearch}
+                    className="hidden sm:block absolute left-4 p-1.5 text-slate-400 hover:text-indigo-500 transition-colors z-10 cursor-pointer"
+                  >
+                    <Search className="h-5 w-5" />
+                  </button>
+                  <div className="relative w-full">
+                    <input
+                      type="text"
+                      placeholder="Search by city, neighborhood..."
+                      value={searchQuery}
+                      onFocus={() => {
+                        setIsMobileFiltersExpanded(true);
+                        setShowAutocomplete(true);
+                      }}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleGeocodeSearch();
+                      }}
+                      className="w-full pl-12 sm:pl-12 pr-4 py-3 bg-white/40 dark:bg-black/20 border border-white/60 dark:border-white/10 rounded-full text-sm font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:bg-white/80 dark:focus:bg-black/40 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 transition-all duration-300 placeholder-slate-500 shadow-sm hover:bg-white/60 dark:hover:bg-black/30"
+                    />
+
+                    {/* Autocomplete Dropdown */}
+                    {showAutocomplete && (searchQuery.trim().length > 0) && (
+                      <div className="absolute top-full left-0 right-0 mt-2 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 rounded-2xl shadow-2xl shadow-indigo-900/10 overflow-hidden flex flex-col max-h-64 overflow-y-auto scrollbar-thin">
+                        {isSearchingLocation ? (
+                          <div className="p-4 flex justify-center items-center">
+                            <div className="h-5 w-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                          </div>
+                        ) : autocompleteResults.length > 0 ? (
+                          autocompleteResults.map((result, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => handleSelectAutocomplete(result)}
+                              className="flex items-start gap-3 w-full text-left p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 cursor-pointer active:bg-slate-100"
+                            >
+                              <MapPin className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+                              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-relaxed">
+                                {result.display_name}
+                              </span>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="p-4 text-center text-xs font-medium text-slate-500">
+                            No locations found
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Close Button for Mobile Filters */}
+                {isMobileFiltersExpanded && (
+                  <button 
+                    onClick={() => {
+                      setIsMobileFiltersExpanded(false);
+                      setShowAutocomplete(false);
+                    }}
+                    className="sm:hidden p-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-800 dark:hover:text-white transition-all hover:scale-105 active:scale-95 shrink-0 shadow-sm"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                )}
               </div>
 
               {/* Property Type Filter */}
-              <div className="flex gap-2 overflow-x-auto pb-1 md:col-span-7 scrollbar-thin">
-                {["ALL", "HOUSE", "APARTMENT", "CONDO", "COMMERCIAL", "LAND"].map((type) => (
+              <div className={`flex gap-3 overflow-x-auto md:col-span-7 scrollbar-none items-center ${!isMobileFiltersExpanded ? 'hidden sm:flex' : 'flex'}`}>
+                {[
+                  { id: "ALL", label: "All", icon: "✨" },
+                  { id: "HOUSE", label: "House", icon: "🏠" },
+                  { id: "APARTMENT", label: "Apartment", icon: "🏢" },
+                  { id: "CONDO", label: "Condo", icon: "🏬" },
+                  { id: "COMMERCIAL", label: "Commercial", icon: "🏪" },
+                  { id: "LAND", label: "Land", icon: "🌳" }
+                ].map((type) => (
                   <button
-                    key={type}
-                    onClick={() => setPropertyType(type)}
-                    className={`px-4 py-2.5 rounded-2xl text-xs font-bold tracking-wide uppercase transition-all whitespace-nowrap ${
-                      propertyType === type
-                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
-                        : "bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+                    key={type.id}
+                    onClick={() => setPropertyType(type.id)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] font-extrabold tracking-widest uppercase transition-all duration-300 whitespace-nowrap active:scale-[0.95] border ${
+                      propertyType === type.id
+                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-transparent shadow-xl shadow-slate-900/20 scale-105"
+                        : "bg-white/50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:scale-[1.02]"
                     }`}
                   >
-                    {type}
+                    <span className="text-sm">{type.icon}</span>
+                    {type.label}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Divider */}
-            <div className="h-px bg-slate-200 dark:bg-slate-800 w-full" />
+            <div className={`h-px bg-slate-200 dark:bg-slate-800 w-full ${!isMobileFiltersExpanded ? 'hidden sm:block' : 'block'}`} />
 
             {/* Row 2: Geospatial Controls & Price slider */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 items-center ${!isMobileFiltersExpanded ? 'hidden sm:grid' : 'grid'}`}>
               {/* Price Range Slider */}
               <div className="lg:col-span-4 flex flex-col gap-2">
                 <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -1117,10 +1326,10 @@ export default function MarketplaceDashboard() {
         </section>
 
         {/* Dashboard Split Panel Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 sm:gap-6 items-stretch flex-1 relative">
           {/* Left panel: Listing Grid */}
-          <div className="lg:col-span-7 flex flex-col gap-4">
-            <div className="flex justify-between items-center px-1">
+          <div className={`lg:col-span-7 flex flex-col gap-4 absolute inset-0 sm:relative bg-white dark:bg-slate-950 sm:bg-transparent z-20 sm:z-0 p-4 sm:p-0 overflow-y-auto sm:overflow-visible transition-transform duration-300 ${isMobileListView ? 'translate-y-0' : 'translate-y-[100%] sm:translate-y-0'}`}>
+            <div className="flex justify-between items-center px-1 sticky top-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md z-10 py-2 sm:py-0">
               <h2 className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <Home className="h-5 w-5 text-indigo-500" />
                 Available Properties
@@ -1133,6 +1342,14 @@ export default function MarketplaceDashboard() {
                 <ArrowUpDown className="h-3 w-3" />
                 Price: High to Low
               </button>
+              
+              <button 
+                onClick={() => setIsMobileListView(false)}
+                className="flex sm:hidden items-center gap-1 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-bold"
+              >
+                <MapPin className="h-3 w-3 text-rose-500" />
+                View Map
+              </button>
             </div>
 
             {loading ? (
@@ -1141,7 +1358,7 @@ export default function MarketplaceDashboard() {
                 <p className="text-sm font-semibold text-slate-400">Scanning geospatial data...</p>
               </div>
             ) : filteredListings.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center">
+              <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/60 dark:border-slate-800/50 rounded-[2.5rem] p-8 text-center shadow-inner">
                 <MapPin className="h-12 w-12 text-slate-300 dark:text-slate-700 mb-4 animate-bounce" />
                 <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">No properties in view</h3>
                 <p className="text-xs text-slate-500 max-w-sm mt-1">
@@ -1166,39 +1383,43 @@ export default function MarketplaceDashboard() {
                   <div
                     key={listing.id}
                     onClick={() => handleListingClick(listing)}
-                    className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+                    className="group border-0 bg-transparent rounded-[2rem] overflow-hidden shadow-none hover:shadow-none transition-all duration-500 cursor-pointer flex flex-col justify-start active:scale-[0.98]"
                   >
                     {/* Image Cover */}
-                    <div className="relative h-44 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-[2rem] shadow-lg shadow-slate-900/5 group-hover:shadow-2xl group-hover:shadow-indigo-900/10 transition-shadow duration-500">
                       {listing.images && listing.images.length > 0 ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={getOptimizedImageUrl(listing.images[0], "q_auto,f_auto,w_400,h_300,c_fill")}
                           alt={listing.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700 bg-slate-100 dark:bg-slate-800">
                           <Building className="h-10 w-10" />
                         </div>
                       )}
-                      <div className="absolute top-3 left-3 flex gap-1.5 z-10">
-                        <div className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-2.5 py-1 rounded-xl shadow-sm">
-                          <span className="text-[10px] font-extrabold tracking-wide uppercase text-indigo-700 dark:text-indigo-400">
+                      
+                      {/* Gradient Overlay for Text Readability */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+
+                      <div className="absolute top-4 left-4 flex gap-1.5 z-10">
+                        <div className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl px-3 py-1.5 rounded-full shadow-lg shadow-black/10 border border-white/20">
+                          <span className="text-[10px] font-black tracking-widest uppercase text-slate-900 dark:text-white">
                             {listing.propertyType}
                           </span>
                         </div>
                         {listing.status && (
-                          <div className={`backdrop-blur-md px-2 py-0.5 rounded-xl shadow-sm border ${
+                          <div className={`backdrop-blur-xl px-2.5 py-1.5 rounded-full shadow-lg shadow-black/10 border ${
                             listing.status === "DRAFT"
-                              ? "bg-amber-500/90 text-white border-amber-400/30"
+                              ? "bg-amber-500/95 text-white border-amber-400/30"
                               : listing.status === "SOLD"
-                              ? "bg-slate-500/90 text-white border-slate-400/30"
+                              ? "bg-slate-900/95 text-white border-slate-700/50"
                               : listing.status === "IN_TALK"
-                              ? "bg-sky-500/90 text-white border-sky-400/30"
-                              : "bg-emerald-500/90 text-white border-emerald-400/30"
+                              ? "bg-sky-500/95 text-white border-sky-400/30"
+                              : "bg-indigo-600/95 text-white border-indigo-400/30"
                           }`}>
-                            <span className="text-[9px] font-extrabold tracking-wide uppercase">
+                            <span className="text-[10px] font-black tracking-widest uppercase">
                               {listing.status === "ACTIVE" ? "AVAILABLE" : listing.status.replace("_", " ")}
                             </span>
                           </div>
@@ -1209,61 +1430,40 @@ export default function MarketplaceDashboard() {
                           e.stopPropagation();
                           alert("Saved to Favorites!");
                         }}
-                        className="absolute top-3 right-3 p-2 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md rounded-xl hover:bg-white dark:hover:bg-slate-950 text-slate-400 hover:text-rose-500 transition-colors shadow-sm"
+                        className="absolute top-4 right-4 p-2.5 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl rounded-full hover:bg-rose-500 hover:text-white text-slate-400 transition-all duration-300 shadow-lg shadow-black/10 active:scale-90"
                       >
-                        <Heart className="h-3.5 w-3.5" />
+                        <Heart className="h-4 w-4" />
                       </button>
                     </div>
 
-                    {/* Card Content */}
-                    <div className="p-4 flex-1 flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-start mb-1.5">
-                          <h3 className="font-extrabold text-sm text-slate-900 dark:text-white line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                            {listing.title}
-                          </h3>
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-2 leading-relaxed">
-                          {listing.description}
-                        </p>
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 mb-2">
-                          <MapPin className="h-3.5 w-3.5 shrink-0 text-indigo-500" />
-                          <span className="text-[11px] font-medium line-clamp-1">
-                            {listing.address}
-                          </span>
-                        </div>
-
-                        {/* Area & Price/SqFt display */}
-                        {listing.areaSqft && (
-                          <div className="flex items-center gap-3 text-[11.5px] text-slate-500 dark:text-slate-400 mb-3 font-bold">
-                            <span className="bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md flex items-center gap-1">
-                              📐 {listing.areaSqft.toLocaleString()} sq ft
-                            </span>
-                            <span className="text-indigo-600 dark:text-indigo-400">
-                              ₹{Math.round(listing.price / listing.areaSqft).toLocaleString()}/sq ft
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Price & Action */}
-                        <div className="flex justify-between items-center pt-2.5 border-t border-slate-100 dark:border-slate-800">
-                          <span className="font-extrabold text-base text-indigo-600 dark:text-indigo-400">
+                    {/* Card Content Below Image */}
+                    <div className="pt-4 pb-6 flex-1 flex flex-col justify-start px-2">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="font-black text-[16px] tracking-tight text-slate-900 dark:text-white line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          {listing.title}
+                        </h3>
+                        <div className="flex items-center gap-1 shrink-0 ml-3">
+                          <span className="font-black text-[16px] tracking-tight text-slate-900 dark:text-white">
                             {formatPrice(listing.price)}
                           </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectListing(listing);
-                            }}
-                            className="bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all"
-                          >
-                            Details
-                          </button>
                         </div>
                       </div>
+                      <p className="text-[14px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
+                        {listing.address}
+                      </p>
+                      
+                      {/* Area & Price/SqFt display */}
+                      {listing.areaSqft && (
+                        <div className="flex items-center gap-2 text-[13px] text-slate-500 dark:text-slate-400 mt-2 font-semibold">
+                          <span className="flex items-center gap-1">
+                            {listing.areaSqft.toLocaleString()} sq ft
+                          </span>
+                          <span>•</span>
+                          <span>
+                            ₹{Math.round(listing.price / listing.areaSqft).toLocaleString()}/sq ft
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1272,8 +1472,8 @@ export default function MarketplaceDashboard() {
           </div>
 
           {/* Right panel: Leaflet Map */}
-          <div className="lg:col-span-5 min-h-[400px] lg:min-h-0 flex flex-col">
-            <div className="flex items-center justify-between mb-2 px-1">
+          <div className="lg:col-span-5 absolute inset-0 sm:relative flex flex-col z-0">
+            <div className="hidden sm:flex items-center justify-between mb-2 px-1">
               <h2 className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-rose-500" />
                 Geospatial View
@@ -1284,23 +1484,40 @@ export default function MarketplaceDashboard() {
                 </span>
               )}
             </div>
-            <div className="flex-1 rounded-3xl overflow-hidden min-h-[400px] border border-slate-200 dark:border-slate-800 shadow-sm relative">
+            <div className="flex-1 sm:rounded-[2.5rem] overflow-hidden h-full sm:min-h-[400px] sm:border border-white/60 dark:border-slate-700/50 sm:shadow-2xl sm:shadow-slate-900/10 relative bg-white/50 dark:bg-slate-900/50 backdrop-blur-3xl">
               <DynamicMap
                 listings={filteredListings}
                 center={mapCenter}
                 onBoundsChange={handleBoundsChange}
+                onMarkerClick={(listing) => handleSelectListing(listing)}
               />
             </div>
+            
+            {/* Floating List View Toggle on Mobile Map */}
+            {!isMobileListView && (
+              <button
+                onClick={() => setIsMobileListView(true)}
+                className="absolute bottom-8 left-1/2 -translate-x-1/2 flex sm:hidden items-center gap-2.5 bg-slate-900/95 dark:bg-white/95 backdrop-blur-xl text-white dark:text-slate-900 px-8 py-3.5 rounded-full shadow-2xl z-10 font-black tracking-wide text-sm active:scale-95 transition-all"
+              >
+                <Home className="h-4 w-4" />
+                List View
+              </button>
+            )}
           </div>
         </div>
       </main>
 
       {/* Selected Listing Detail Modal */}
       {selectedListing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/40 sm:bg-slate-900/60 backdrop-blur-md transition-all duration-500">
+          <div className="bg-white dark:bg-slate-900 border-t sm:border border-white/20 dark:border-slate-800/50 rounded-t-[2.5rem] sm:rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-500 ease-out">
+            {/* Mobile Drag Handle */}
+            <div className="w-full flex sm:hidden justify-center pt-4 pb-3 sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-20 rounded-t-[2.5rem]">
+              <div className="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full" />
+            </div>
+
             {/* Modal Image Carousel */}
-            <div className="relative h-60 w-full bg-slate-100 group">
+            <div className="relative h-52 sm:h-60 w-full bg-slate-100 group">
               {selectedListing.images && selectedListing.images.length > 0 ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img

@@ -313,24 +313,20 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
-      {/* Background Gradients */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-900/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-violet-900/10 blur-[120px] pointer-events-none" />
-
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-black flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
       {/* Card Wrapper */}
-      <div className="w-full max-w-lg bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl relative z-10">
+      <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2.5rem] border border-white/60 dark:border-slate-800/50 p-8 sm:p-10 shadow-2xl shadow-slate-900/5 relative z-10">
         
         {/* Brand Logo */}
         <div className="flex flex-col items-center gap-3 mb-6 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/loulam-logo.png" alt="LouLam" className="h-14 w-auto" />
           <div>
-            <h1 className="font-extrabold text-2xl bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent tracking-tight font-sans">
+            <h1 className="font-black text-[22px] text-slate-900 dark:text-white tracking-tight font-sans">
               Create Profile
             </h1>
-            <p className="text-slate-400 text-xs mt-1.5 font-medium tracking-wide">
-              JOIN LOULAM MARKETPLACE
+            <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-1 font-black tracking-widest uppercase">
+              Join LouLam Marketplace
             </p>
           </div>
         </div>
@@ -345,7 +341,7 @@ export default function RegisterPage() {
           
           {/* Circular Profile Picture Upload */}
           <div className="flex flex-col items-center gap-2.5 mb-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">
               Profile Picture
             </label>
             <div className="relative group cursor-pointer h-24 w-24 rounded-full overflow-hidden border-2 border-indigo-500/30 bg-slate-850 hover:border-indigo-500 transition-all shadow-md">
@@ -390,7 +386,7 @@ export default function RegisterPage() {
 
           {/* Full Name Input */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="name" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label htmlFor="name" className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">
               Full Name
             </label>
             <div className="relative">
@@ -404,14 +400,14 @@ export default function RegisterPage() {
                 placeholder="John Doe"
                 value={name}
                 onChange={handleNameChange}
-                className="w-full pl-11 pr-4 py-3 bg-slate-800/40 border border-slate-700/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-white placeholder-slate-500 transition-all font-sans"
+                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-[15px] font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm"
               />
             </div>
           </div>
 
           {/* Email Address & OTP Send Group */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="email" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label htmlFor="email" className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">
               Email Address
             </label>
             <div className="flex gap-2">
@@ -426,14 +422,14 @@ export default function RegisterPage() {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-800/40 border border-slate-700/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-white placeholder-slate-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all font-sans"
+                  className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-[15px] font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-sm"
                 />
               </div>
               <button
                 type="button"
                 onClick={handleSendEmailOtp}
                 disabled={isEmailVerified || emailOtpCooldown > 0 || !email}
-                className="px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-2xl transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none shadow-md shadow-indigo-600/10 cursor-pointer min-w-[100px]"
+                className="px-5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-[13px] rounded-2xl transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none shadow-md cursor-pointer min-w-[100px] active:scale-95"
               >
                 {emailOtpCooldown > 0 ? `${emailOtpCooldown}s` : isEmailOtpSent ? "Resend Link" : "Send Link"}
               </button>
@@ -470,7 +466,7 @@ export default function RegisterPage() {
 
           {/* Date of Birth Input */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="dateOfBirth" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label htmlFor="dateOfBirth" className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">
               Date of Birth (Must be 18+)
             </label>
             <div className="relative">
@@ -482,14 +478,14 @@ export default function RegisterPage() {
                 required
                 value={dateOfBirth}
                 onChange={(e) => setDateOfBirth(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-slate-800/40 border border-slate-700/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-white placeholder-slate-500 transition-all font-sans"
+                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-[15px] font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm"
               />
             </div>
           </div>
 
           {/* Mobile Number Input */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="phone" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label htmlFor="phone" className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">
               Mobile Number
             </label>
             <div className="relative">
@@ -502,14 +498,14 @@ export default function RegisterPage() {
                 placeholder="e.g. +919876543210"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-slate-800/40 border border-slate-700/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-white placeholder-slate-500 transition-all font-sans"
+                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-[15px] font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm"
               />
             </div>
           </div>
 
           {/* Password Input */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="new-password" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label htmlFor="new-password" className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">
               Password
             </label>
             <div className="relative">
@@ -523,7 +519,7 @@ export default function RegisterPage() {
                 placeholder="Min. 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-11 pr-11 py-3 bg-slate-800/40 border border-slate-700/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-white placeholder-slate-500 transition-all font-sans"
+                className="w-full pl-11 pr-11 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-[15px] font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm"
               />
               <button
                 type="button"
@@ -540,7 +536,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading || !isEmailVerified || !avatarUrl}
-            className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 mt-4 shadow-lg shadow-indigo-600/20 cursor-pointer"
+            className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full text-[15px] font-black tracking-wide transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 mt-4 shadow-xl shadow-slate-900/10 dark:shadow-none cursor-pointer"
           >
             {loading ? (
               <>
@@ -554,9 +550,9 @@ export default function RegisterPage() {
         </form>
 
         {/* Footer Links */}
-        <p className="text-center text-xs font-semibold text-slate-500 mt-8">
+        <p className="text-center text-[13px] font-semibold text-slate-500 dark:text-slate-400 mt-8">
           Already have an account?{" "}
-          <Link href="/login" className="text-indigo-400 hover:text-indigo-300 transition-colors font-bold font-sans">
+          <Link href="/login" className="text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-black">
             Sign In
           </Link>
         </p>

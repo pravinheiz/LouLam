@@ -62,13 +62,9 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
-      {/* Background Gradients */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-900/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-violet-900/10 blur-[120px] pointer-events-none" />
-
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-black flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
       {/* Card Wrapper */}
-      <div className="w-full max-w-md bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl relative z-10">
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] border border-white/60 dark:border-slate-800/50 p-8 sm:p-10 shadow-2xl shadow-slate-900/5 relative z-10">
         
         {/* Brand Logo */}
         <div className="flex flex-col items-center gap-3 mb-8 text-center">
@@ -85,11 +81,11 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {/* Email Address Input */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="email" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label htmlFor="email" className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-3.5 h-4 w-4 text-slate-500" />
+              <Mail className="absolute left-4 top-4 h-4.5 w-4.5 text-slate-400" />
               <input
                 id="email"
                 name="email"
@@ -99,26 +95,26 @@ function LoginForm() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-slate-800/40 border border-slate-700/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-white placeholder-slate-500 transition-all"
+                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-[15px] font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm"
               />
             </div>
           </div>
 
           {/* Password Input */}
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center">
-              <label htmlFor="current-password" className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <div className="flex justify-between items-center pl-1">
+              <label htmlFor="current-password" className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                 Password
               </label>
               <Link 
                 href="/forgot-password" 
-                className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                className="text-[11px] font-black text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors uppercase tracking-widest"
               >
-                Forgot Password?
+                Forgot?
               </Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-4 top-3.5 h-4 w-4 text-slate-500" />
+              <Lock className="absolute left-4 top-4 h-4.5 w-4.5 text-slate-400" />
               <input
                 id="current-password"
                 name="password"
@@ -128,12 +124,12 @@ function LoginForm() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-11 pr-11 py-3 bg-slate-800/40 border border-slate-700/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-white placeholder-slate-500 transition-all"
+                className="w-full pl-11 pr-11 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-[15px] font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-3.5 text-slate-500 hover:text-slate-300 transition-colors"
+                className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 title={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
@@ -145,7 +141,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading || googleLoading}
-            className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 mt-2 shadow-lg shadow-indigo-600/20"
+            className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full text-[15px] font-black tracking-wide transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 mt-4 shadow-xl shadow-slate-900/10 dark:shadow-none"
           >
             {loading ? (
               <>
@@ -160,16 +156,16 @@ function LoginForm() {
 
         {/* Divider */}
         <div className="flex items-center my-6">
-          <div className="flex-grow h-px bg-slate-800" />
-          <span className="px-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Or</span>
-          <div className="flex-grow h-px bg-slate-800" />
+          <div className="flex-grow h-px bg-slate-200 dark:bg-slate-800" />
+          <span className="px-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Or</span>
+          <div className="flex-grow h-px bg-slate-200 dark:bg-slate-800" />
         </div>
 
         {/* Google OAuth Button */}
         <button
           onClick={handleGoogleLogin}
           disabled={loading || googleLoading}
-          className="w-full py-3.5 border border-slate-800 hover:border-slate-700 hover:bg-slate-800/20 text-slate-200 rounded-2xl text-sm font-semibold tracking-wide transition-all transform active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-3 cursor-pointer"
+          className="w-full py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white rounded-full text-[15px] font-bold tracking-wide transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-3 cursor-pointer shadow-sm"
         >
           {googleLoading ? (
             <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
@@ -197,9 +193,9 @@ function LoginForm() {
         </button>
 
         {/* Footer Links */}
-        <p className="text-center text-xs font-semibold text-slate-500 mt-8">
+        <p className="text-center text-[13px] font-semibold text-slate-500 dark:text-slate-400 mt-8">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="text-indigo-400 hover:text-indigo-300 transition-colors font-bold">
+          <Link href="/register" className="text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-black">
             Sign Up
           </Link>
         </p>
@@ -211,7 +207,7 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#f5f5f7] dark:bg-black flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
       </div>
     }>
